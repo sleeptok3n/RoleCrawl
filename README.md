@@ -26,7 +26,7 @@ It connects to Azure, retrieves the current user's details, lists all subscripti
 
 ### Auditing Group Role Assignments
 ```PowerShell
-Invoke-GroupRoleAssignments
+Get-AzGroupRoleAssignments
 ```
 This command audits role assignments for specified Azure AD Groups.
 After running this command, you will be prompted to input either a single Azure AD Group Object ID or a file path containing multiple IDs. The tool then performs a similar audit as for users, but for the specified groups.
