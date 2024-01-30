@@ -1,7 +1,5 @@
 # RoleCrawl
-
-![RoleCrawl](https://github.com/sleeptok3n/RoleCrawl/assets/38359072/304a5dad-add1-4f75-9091-27afb2f20551)
-
+<p align="center"><img src="https://github.com/sleeptok3n/RoleCrawl/assets/38359072/304a5dad-add1-4f75-9091-27afb2f20551" alt="RoleCrawl"/></p>
 RoleCrawl is a PowerShell tool designed to audit User and Group role assignments within Azure, covering both subscription and resource scopes. It provides two key functions: one for auditing individual user roles and another for group roles. This tool efficiently enables a thorough exploration and analysis of role assignments, revealing potential security vulnerabilities and configuration issues in access controls.
 
 ## Prerequisites
