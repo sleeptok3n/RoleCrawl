@@ -7,6 +7,7 @@ PowerShell 5.1 or later.
 
 Azure PowerShell Module installed.
 
+***RoleCrawl works best in a Windows environment**
 ## Installation
 Import the RoleCrawl module into your PowerShell session.
 
