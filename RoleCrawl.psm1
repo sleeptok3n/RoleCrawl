@@ -3,7 +3,7 @@
 
 Write-Host -ForegroundColor Green " 
    ▄████████  ▄██████▄   ▄█          ▄████████  ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█      
-  ███    ███ ███    ███ ███         ███    ███ ███    ███   ███    ███   ███    ███ ███     ███ ███      
+  ███    ███ ███    ███ ███         ███    ███ ███    ███   ███    ███   ███    ███ ███     ███ ███              
   ███    ███ ███    ███ ███         ███    █▀  ███    █▀    ███    ███   ███    ███ ███     ███ ███      
  ▄███▄▄▄▄██▀ ███    ███ ███        ▄███▄▄▄     ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███      
 ▀▀███▀▀▀▀▀   ███    ███ ███       ▀▀███▀▀▀     ███        ▀▀███▀▀▀▀▀   ▀███████████ ███     ███ ███      
@@ -11,10 +11,47 @@ Write-Host -ForegroundColor Green "
   ███    ███ ███    ███ ███▌    ▄   ███    ███ ███    ███   ███    ███   ███    ███ ███ ▄█▄ ███ ███▌    ▄
   ███    ███  ▀██████▀  █████▄▄██   ██████████ ████████▀    ███    ███   ███    █▀   ▀███▀███▀  █████▄▄██
   ███    ███            ▀                                   ███    ███                          ▀               
+                              
                                ""Navigating through the permissions maze""
-                                    by Eli Ainhorn (sleeptok3n)                                
-                   
+                                    by Eli Ainhorn (sleeptok3n)                                                   
 "
+if ($IsWindows -or [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT) {
+    Write-Host "Detected Windows environment." -ForegroundColor Yellow
+} elseif ($IsMacOS) {
+    Write-Host "Detected macOS environment." -ForegroundColor Yellow
+    if (-not (Get-Module -ListAvailable -Name PSmacOS)) {
+        Write-Host "PSmacOS module not found. Installing..." -ForegroundColor Yellow
+        Install-Module PSmacOS -Scope CurrentUser -Force
+        Import-Module PSmacOS -Force
+        Write-Host "PSmacOS module installed successfully." -ForegroundColor Yellow
+    } else {
+        Write-Host "PSmacOS module is already installed." -ForegroundColor Yellow
+        Import-Module PSmacOS
+    }
+} elseif ($IsLinux) {
+    Write-Host "Detected Linux environment." -ForegroundColor Yellow
+    if (-not (Get-Module -ListAvailable -Name Microsoft.PowerShell.GraphicalTools)) {
+        Write-Host "Microsoft.PowerShell.GraphicalTools module not found. Installing..." -ForegroundColor Yellow
+        Install-Module Microsoft.PowerShell.GraphicalTools -Scope CurrentUser -Force
+        Import-Module Microsoft.PowerShell.GraphicalTools -Force
+        Write-Host "Microsoft.PowerShell.GraphicalTools module installed successfully." -ForegroundColor Yellow
+    } else {
+        Write-Host "Microsoft.PowerShell.GraphicalTools module is already installed." -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "Detected an unknown environment. Some features may not work as expected." -ForegroundColor Yellow
+}
+function Show-Data {
+    param([Parameter(Mandatory=$true)] [object]$Data)
+
+    if ($IsMacOS) {
+        $Data | Out-GridView
+    } else {
+        # Use Out-GridView on Windows and other platforms
+        $Data | Out-GridView
+    }
+}
+
 function Select-Subscriptions {
     param ([object[]]$allSubscriptions)
     $allSubscriptions | Out-GridView -PassThru -Title "Select One or More Subscriptions"
@@ -66,12 +103,12 @@ function Get-AzUserRoleAssignments {
     $selectedSubscriptions = Get-SelectedSubscriptions
     if (-not $selectedSubscriptions) { return }
 
-    $userDetailsUri = "https://graph.microsoft.com/v1.0/me/"
-    try {
-        $userDetails = Invoke-RestMethod -Uri $userDetailsUri -Headers $headers -Method Get
-        $userObjectId = $userDetails.id
+ try {
+        $token = ((Get-AzAccessToken).Token).Split(".")[1].Replace('-', '+').Replace('_', '/')
+        while ($token.Length % 4) { $token += "=" }  # Ensure proper Base64 padding
+        $userObjectId = ([System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($token)) | ConvertFrom-Json).oid
     } catch {
-        Write-Host "Unable to retrieve user object ID automatically via REST API." -ForegroundColor Red
+        Write-Host "Failed to extract user object ID from the token." -ForegroundColor Red
         return
     }
 
